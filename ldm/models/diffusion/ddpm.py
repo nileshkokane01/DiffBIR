@@ -79,6 +79,7 @@ class DDPM(pl.LightningModule, ImageLoggerMixin):
                  reset_ema=False,
                  reset_num_ema_updates=False,
                  ):
+        print("ddpm init : ")
         super().__init__()
         assert parameterization in ["eps", "x0", "v"], 'currently only supporting "eps" and "x0" and "v"'
         self.parameterization = parameterization
@@ -277,6 +278,7 @@ class DDPM(pl.LightningModule, ImageLoggerMixin):
         :param t: the number of diffusion steps (minus 1). Here, 0 means one step.
         :return: A tuple (mean, variance, log_variance), all of x_start's shape.
         """
+        print('ddpm :  q_mean_variance')
         mean = (extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape) * x_start)
         variance = extract_into_tensor(1.0 - self.alphas_cumprod, t, x_start.shape)
         log_variance = extract_into_tensor(self.log_one_minus_alphas_cumprod, t, x_start.shape)
@@ -355,6 +357,7 @@ class DDPM(pl.LightningModule, ImageLoggerMixin):
                                   return_intermediates=return_intermediates)
 
     def q_sample(self, x_start, t, noise=None):
+        print('q_sample')
         noise = default(noise, lambda: torch.randn_like(x_start))
         return (extract_into_tensor(self.sqrt_alphas_cumprod, t, x_start.shape) * x_start +
                 extract_into_tensor(self.sqrt_one_minus_alphas_cumprod, t, x_start.shape) * noise)
@@ -851,6 +854,7 @@ class LatentDiffusion(DDPM):
         return loss
 
     def forward(self, x, c, *args, **kwargs):
+        print('LatentDiffusion  :  forward ')
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=self.device).long()
         if self.model.conditioning_key is not None:
             assert c is not None
@@ -862,6 +866,7 @@ class LatentDiffusion(DDPM):
         return self.p_losses(x, c, t, *args, **kwargs)
 
     def apply_model(self, x_noisy, t, cond, return_ids=False):
+        print('LatentDiffusion :  apply model')
         if isinstance(cond, dict):
             # hybrid case, cond is expected to be a dict
             pass
@@ -897,6 +902,7 @@ class LatentDiffusion(DDPM):
         return mean_flat(kl_prior) / np.log(2.0)
 
     def p_losses(self, x_start, cond, t, noise=None):
+        print('LatentDOffusion:  p_losses')
         noise = default(noise, lambda: torch.randn_like(x_start))
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         model_output = self.apply_model(x_noisy, t, cond)
@@ -1056,6 +1062,7 @@ class LatentDiffusion(DDPM):
                       x_T=None, verbose=True, callback=None, timesteps=None, quantize_denoised=False,
                       mask=None, x0=None, img_callback=None, start_T=None,
                       log_every_t=None):
+        print('LatentDiffusion : p_sample_loop')
 
         if not log_every_t:
             log_every_t = self.log_every_t
@@ -1327,11 +1334,13 @@ class DiffusionWrapper(pl.LightningModule):
     def __init__(self, diff_model_config, conditioning_key):
         super().__init__()
         self.sequential_cross_attn = diff_model_config.pop("sequential_crossattn", False)
+        print('diffusionwrapper:  print:  diff_model_config: ' , diff_model_config\)
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm', 'hybrid-adm', 'crossattn-adm']
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None, c_adm=None):
+        print('diffusionWrapper :  forward ')
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
         elif self.conditioning_key == 'concat':

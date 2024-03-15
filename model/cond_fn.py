@@ -62,6 +62,7 @@ class MSEGuidance(Guidance):
         space: str,
         repeat: int
     ) -> "MSEGuidance":
+        print('initializing MSEGuidance')
         super().__init__(
             scale, t_start, t_stop, space, repeat
         )
@@ -69,6 +70,7 @@ class MSEGuidance(Guidance):
     @torch.enable_grad()
     def _forward(self, target_x0: torch.Tensor, pred_x0: torch.Tensor) -> torch.Tensor:
         # inputs: [-1, 1], nchw, rgb
+        print('MSEGuidance :  _forward ')
         pred_x0.requires_grad_(True)
         
         # This is what we actually use.

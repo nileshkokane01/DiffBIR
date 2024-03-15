@@ -74,6 +74,7 @@ def _extract_into_tensor(arr, timesteps, broadcast_shape):
                             dimension equal to the length of timesteps.
     :return: a tensor of shape [batch_size, 1, ...] where the shape has K dims.
     """
+    print('_extract_into_tensor_')
     try:
         # float64 as default. float64 is not supported by mps device.
         res = torch.from_numpy(arr).to(device=timesteps.device)[timesteps].float()
@@ -117,6 +118,7 @@ class SpacedSampler:
         """
         # NOTE: this schedule, which generates betas linearly in log space, is a little different
         # from guided diffusion.
+        print('spacedSampler :  make_schedule')
         original_betas = make_beta_schedule(
             self.schedule, self.original_num_steps, linear_start=self.model.linear_start,
             linear_end=self.model.linear_end
@@ -219,6 +221,7 @@ class SpacedSampler:
             posterior_variance (torch.Tensor): Variance of the posterior distribution.
             posterior_log_variance_clipped (torch.Tensor): Log variance of the posterior distribution.
         """
+        print('q_posterior_mean_variance')
         assert x_start.shape == x_t.shape
         posterior_mean = (
             _extract_into_tensor(self.posterior_mean_coef1, t, x_t.shape) * x_start
@@ -256,6 +259,7 @@ class SpacedSampler:
         cfg_scale: float,
         uncond: Optional[Dict[str, torch.Tensor]]
     ) -> torch.Tensor:
+        print('spaced_smapler: predict_noise')
         if uncond is None or cfg_scale == 1.:
             model_output = self.model.apply_model(x, t, cond)
         else:
@@ -347,6 +351,7 @@ class SpacedSampler:
         cond_fn: Optional[Guidance]
     ) -> torch.Tensor:
         # variance of posterior distribution q(x_{t-1}|x_t, x_0)
+        print('spacesampler  :  p_sample')
         model_variance = {
             "fixed_large": np.append(self.posterior_variance[1], self.betas[1:]),
             "fixed_small": self.posterior_variance

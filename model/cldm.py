@@ -79,6 +79,7 @@ class ControlNet(nn.Module):
         disable_middle_self_attn=False,
         use_linear_in_transformer=False,
     ):
+        print('control net')
         super().__init__()
         if use_spatial_transformer:
             assert context_dim is not None, 'Fool!! You forgot to include the dimension of your cross-attention conditioning...'
@@ -267,6 +268,7 @@ class ControlNet(nn.Module):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
     def forward(self, x, hint, timesteps, context, **kwargs):
+        print('ControlNet :  forward ')
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         emb = self.time_embed(t_emb)
         x = torch.cat((x, hint), dim=1)
@@ -296,6 +298,7 @@ class ControlLDM(LatentDiffusion):
         *args,
         **kwargs
     ) -> "ControlLDM":
+        print('controlLDM')
         super().__init__(*args, **kwargs)
         # instantiate control module
         self.control_model: ControlNet = instantiate_from_config(control_stage_config)
@@ -326,6 +329,7 @@ class ControlLDM(LatentDiffusion):
     
     @torch.no_grad()
     def get_input(self, batch, k, bs=None, *args, **kwargs):
+        print('controlLDDM :  get_input ')
         x, c = super().get_input(batch, self.first_stage_key, *args, **kwargs)
         control = batch[self.control_key]
         if bs is not None:
@@ -341,6 +345,7 @@ class ControlLDM(LatentDiffusion):
         return x, dict(c_crossattn=[c], c_latent=[c_latent], lq=[lq], c_concat=[control])
 
     def apply_model(self, x_noisy, t, cond, *args, **kwargs):
+        print('controlLDM :  apply Model ')
         assert isinstance(cond, dict)
         diffusion_model = self.model.diffusion_model
 

@@ -160,7 +160,7 @@ def main() -> None:
     pl.seed_everything(args.seed)
     
     args.device = check_device(args.device)
-    
+    print('Args for ControlLDM :  ' , args.config )
     model: ControlLDM = instantiate_from_config(OmegaConf.load(args.config))
     load_state_dict(model, torch.load(args.ckpt, map_location="cpu"), strict=True)
     # reload preprocess model if specified
