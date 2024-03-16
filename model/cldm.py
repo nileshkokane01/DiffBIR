@@ -357,9 +357,8 @@ class ControlLDM(LatentDiffusion):
         if cond['c_latent'] is None:
             eps = diffusion_model(x=x_noisy, timesteps=t, context=cond_txt, control=None, only_mid_control=self.only_mid_control)
         else:
-            print('control LDM :  apply_model')
-            print('printing c_latent ')
-            print(cond['c_latent'])
+            print('control LDM :  apply_model else')
+
             control = self.control_model(
                 x=x_noisy, hint=torch.cat(cond['c_latent'], 1),
                 timesteps=t, context=cond_txt
