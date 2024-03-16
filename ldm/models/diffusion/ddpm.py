@@ -92,6 +92,8 @@ class DDPM(pl.LightningModule, ImageLoggerMixin):
         self.channels = channels
         self.use_positional_encodings = use_positional_encodings
         self.model = DiffusionWrapper(unet_config, conditioning_key)
+        print('printing the model for Unet ' )
+        print(self.model )
         count_params(self.model, verbose=True)
         self.use_ema = use_ema
         if self.use_ema:
@@ -384,6 +386,7 @@ class DDPM(pl.LightningModule, ImageLoggerMixin):
         return loss
 
     def p_losses(self, x_start, t, noise=None):
+        print('ddpm:  p_losses')
         noise = default(noise, lambda: torch.randn_like(x_start))
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         model_out = self.model(x_noisy, t)
@@ -415,6 +418,7 @@ class DDPM(pl.LightningModule, ImageLoggerMixin):
         return loss, loss_dict
 
     def forward(self, x, *args, **kwargs):
+        print('ddpm :  forward')
         # b, c, h, w, device, img_size, = *x.shape, x.device, self.image_size
         # assert h == img_size and w == img_size, f'height and width of image must be {img_size}'
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=self.device).long()
@@ -617,6 +621,8 @@ class LatentDiffusion(DDPM):
             self.make_cond_schedule()
 
     def instantiate_first_stage(self, config):
+        print('instantiate most likely the AE' )
+        print(config)
         model = instantiate_from_config(config)
         self.first_stage_model = model.eval()
         self.first_stage_model.train = disabled_train

@@ -309,7 +309,10 @@ class ControlLDM(LatentDiffusion):
         self.control_scales = [1.0] * 13
         
         # instantiate preprocess module (SwinIR)
+        
         self.preprocess_model = instantiate_from_config(preprocess_config)
+        print('restoration model a.k.a :  swimIR config')
+        print(preprocess_config)
         frozen_module(self.preprocess_model)
         
         # instantiate condition encoder, since our condition encoder has the same 
@@ -354,6 +357,9 @@ class ControlLDM(LatentDiffusion):
         if cond['c_latent'] is None:
             eps = diffusion_model(x=x_noisy, timesteps=t, context=cond_txt, control=None, only_mid_control=self.only_mid_control)
         else:
+            print('control LDM :  apply_model')
+            print('printing c_latent ')
+            print(cond['c_latent'])
             control = self.control_model(
                 x=x_noisy, hint=torch.cat(cond['c_latent'], 1),
                 timesteps=t, context=cond_txt
@@ -369,6 +375,7 @@ class ControlLDM(LatentDiffusion):
 
     @torch.no_grad()
     def log_images(self, batch, sample_steps=50):
+        print('control LDM : log_images')
         log = dict()
         z, c = self.get_input(batch, self.first_stage_key)
         c_lq = c["lq"][0]
@@ -393,6 +400,7 @@ class ControlLDM(LatentDiffusion):
 
     @torch.no_grad()
     def sample_log(self, cond, steps):
+        print('ControlLDM :  sample_log')
         sampler = SpacedSampler(self)
         b, c, h, w = cond["c_concat"][0].shape
         shape = (b, self.channels, h // 8, w // 8)
@@ -403,6 +411,7 @@ class ControlLDM(LatentDiffusion):
         return samples
 
     def configure_optimizers(self):
+        print('controlLDM : configure_optimizer')
         lr = self.learning_rate
         params = list(self.control_model.parameters())
         if not self.sd_locked:
