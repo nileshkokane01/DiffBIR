@@ -681,6 +681,9 @@ class LatentDiffusion(DDPM):
         print('cond_stage_forward')
         print(self.cond_stage_forward)
         if self.cond_stage_forward is None:
+            print('cond_stage_forward:  None')
+            print('printing cond_stage_model')
+            print(self.cond_stage_model)
             if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
                 c = self.cond_stage_model.encode(c)
                 if isinstance(c, DiagonalGaussianDistribution):
