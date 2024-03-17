@@ -630,6 +630,8 @@ class LatentDiffusion(DDPM):
             param.requires_grad = False
 
     def instantiate_cond_stage(self, config):
+        print('latentdiffusion : text model')
+        print(config)
         if not self.cond_stage_trainable:
             if config == "__is_first_stage__":
                 print("Using first stage also as cond stage.")
@@ -674,6 +676,9 @@ class LatentDiffusion(DDPM):
         return self.scale_factor * z
 
     def get_learned_conditioning(self, c):
+        print('printing : latentDIffusion :  get_learned_conditions')
+        print('cond_stage_forward')
+        print(self.cond_stage_forward)
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
                 c = self.cond_stage_model.encode(c)

@@ -285,6 +285,7 @@ class SpacedSampler:
         cfg_scale: float,
         uncond: Optional[Dict[str, torch.Tensor]]
     ) -> torch.Tensor:
+        print('spaced smapler :  apply_cond_fn')
         device = x.device
         t_now = int(t[0].item()) + 1
         # ----------------- predict noise and x0 ----------------- #
@@ -397,6 +398,7 @@ class SpacedSampler:
         cond_fn: Optional[Guidance]=None,
         color_fix_type: str="none"
     ) -> torch.Tensor:
+        
         def _sliding_windows(h: int, w: int, tile_size: int, tile_stride: int) -> Tuple[int, int, int, int]:
             hi_list = list(range(0, h - tile_size + 1, tile_stride))
             if (h - tile_size) % tile_stride != 0:
