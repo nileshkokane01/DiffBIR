@@ -625,7 +625,11 @@ class LatentDiffusion(DDPM):
         print('instantiate most likely the AE' )
         print(config)
         model = instantiate_from_config(config)
+        print(model)
+        
         self.first_stage_model = model.eval()
+        print('self.first_stage_model')
+        print(self.first_stage_model)
         self.first_stage_model.train = disabled_train
         for param in self.first_stage_model.parameters():
             param.requires_grad = False
