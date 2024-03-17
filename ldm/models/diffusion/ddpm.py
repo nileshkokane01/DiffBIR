@@ -691,7 +691,11 @@ class LatentDiffusion(DDPM):
             else:
                 c = self.cond_stage_model(c)
         else:
+            print('LatentDiffusion : get lerant_cond')
+            print('coming to else ')
+            print(self.cond_stage_model)
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
+            
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
         return c
 
